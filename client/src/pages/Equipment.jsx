@@ -14,28 +14,39 @@ function Equipment() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchEquipment = async () => {
-      try {
-        const response = await apiFetch("/api/equipment");
+useEffect(() => {
+  const fetchEquipment = async () => {
+    try {
+      const response = await apiFetch("/api/equipment");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch equipment");
-        }
-
-        const data = await response.json();
-
-        setEquipment(data);
-      } catch (error) {
-        console.error("Error fetching equipment:", error);
-        setError("Unable to load equipment information.");
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch equipment");
       }
-    };
 
+      const data = await response.json();
+
+      setEquipment(data);
+      setError("");
+    } catch (error) {
+      console.error("Error fetching equipment:", error);
+      setError("Unable to load equipment information.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch immediately when page opens
+  fetchEquipment();
+
+  // Fetch latest equipment every 5 seconds
+  const interval = setInterval(() => {
     fetchEquipment();
-  }, []);
+  }, 5000);
+
+  // Stop interval when leaving Equipment page
+  return () => clearInterval(interval);
+
+}, []);
 
   // Choose icon based on equipment type/name
   const getEquipmentIcon = (item) => {

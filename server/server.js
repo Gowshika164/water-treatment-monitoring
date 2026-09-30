@@ -9,11 +9,13 @@ const Equipment = require("./models/Equipment");
 const Setting = require("./models/Setting");
 const User = require("./models/User");
 
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = require("./middleware/authMiddleware");
 const startSensorSimulator = require("./sensorSimulator");
+const startEquipmentSimulator = require("./equipmentSimulator");
 
 const app = express();
 
@@ -37,6 +39,7 @@ mongoose
 
     // Start automatic sensor simulation
     startSensorSimulator();
+    startEquipmentSimulator();
   })
   .catch((error) => {
     console.error("MongoDB connection error:", error);

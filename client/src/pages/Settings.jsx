@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api";
 
+import {
+  FlaskConical,
+  Waves,
+  Thermometer,
+  Droplets,
+  Gauge,
+  Save
+} from "lucide-react";
+
 function Settings() {
   const [settings, setSettings] = useState(null);
   const [message, setMessage] = useState("");
@@ -23,18 +32,13 @@ function Settings() {
         const data = await response.json();
 
         setSettings(data);
-
       } catch (error) {
-        console.error(
-          "Error fetching settings:",
-          error
-        );
+        console.error("Error fetching settings:", error);
       }
     };
 
     fetchSettings();
   }, []);
-
 
   // ==========================================
   // HANDLE INPUT CHANGE
@@ -49,13 +53,11 @@ function Settings() {
     }));
   };
 
-
   // ==========================================
   // VALIDATE SETTINGS
   // ==========================================
 
   const validateSettings = () => {
-
     if (settings.pHMin >= settings.pHMax) {
       return "pH minimum must be less than pH maximum.";
     }
@@ -88,7 +90,6 @@ function Settings() {
     return null;
   };
 
-
   // ==========================================
   // SAVE SETTINGS
   // ==========================================
@@ -98,7 +99,6 @@ function Settings() {
 
     setMessage("");
 
-    // Validate before sending to backend
     const validationError = validateSettings();
 
     if (validationError) {
@@ -148,7 +148,7 @@ function Settings() {
       if (!response.ok) {
         throw new Error(
           data.message ||
-          "Failed to update settings"
+            "Failed to update settings"
         );
       }
 
@@ -173,7 +173,7 @@ function Settings() {
 
       setMessage(
         error.message ||
-        "Failed to update settings."
+          "Failed to update settings."
       );
 
       setMessageType("error");
@@ -183,40 +183,33 @@ function Settings() {
     }
   };
 
-
   // ==========================================
   // LOADING
   // ==========================================
 
   if (!settings) {
-    return (
-      <h2>
-        Loading settings...
-      </h2>
-    );
+    return <h2>Loading settings...</h2>;
   }
 
+  // ==========================================
+  // UI
+  // ==========================================
 
   return (
     <div className="settings-page">
 
-      {/* HEADER */}
+      {/* PAGE HEADER */}
 
       <div className="page-header">
-
-        <h1>
-          Threshold Settings
-        </h1>
+        <h1>Threshold Settings</h1>
 
         <p>
-          Configure acceptable ranges for water treatment
-          plant parameters
+          Configure acceptable ranges for water
+          treatment plant parameters
         </p>
-
       </div>
 
-
-      {/* MESSAGE */}
+      {/* SUCCESS / ERROR MESSAGE */}
 
       {message && (
         <div
@@ -230,30 +223,48 @@ function Settings() {
         </div>
       )}
 
-
       {/* SETTINGS FORM */}
 
       <form
-        className="settings-form"
+        className="settings-form settings-grid"
         onSubmit={handleSubmit}
       >
 
-
-        {/* ================= pH ================= */}
+        {/* =====================================
+            pH LEVEL
+        ===================================== */}
 
         <div className="setting-group">
 
-          <h2>
-            pH Level
-          </h2>
+          <div className="setting-card-header">
+
+            <div className="setting-title">
+
+              <div className="setting-icon">
+                <FlaskConical size={23} />
+              </div>
+
+              <div>
+                <h2>pH Level</h2>
+
+                <p>
+                  Acceptable acidity and alkalinity
+                  range
+                </p>
+              </div>
+
+            </div>
+
+            <span className="range-badge">
+              {settings.pHMin} – {settings.pHMax}
+            </span>
+
+          </div>
 
           <div className="setting-inputs">
 
             <div>
-
-              <label>
-                Minimum
-              </label>
+              <label>Minimum</label>
 
               <input
                 type="number"
@@ -263,15 +274,10 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
-
             <div>
-
-              <label>
-                Maximum
-              </label>
+              <label>Maximum</label>
 
               <input
                 type="number"
@@ -281,29 +287,47 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
           </div>
 
         </div>
 
-
-        {/* ================= TURBIDITY ================= */}
+        {/* =====================================
+            TURBIDITY
+        ===================================== */}
 
         <div className="setting-group">
 
-          <h2>
-            Turbidity
-          </h2>
+          <div className="setting-card-header">
+
+            <div className="setting-title">
+
+              <div className="setting-icon">
+                <Waves size={23} />
+              </div>
+
+              <div>
+                <h2>Turbidity</h2>
+
+                <p>
+                  Maximum acceptable water
+                  cloudiness
+                </p>
+              </div>
+
+            </div>
+
+            <span className="range-badge">
+              ≤ {settings.turbidityMax} NTU
+            </span>
+
+          </div>
 
           <div className="setting-inputs">
 
             <div>
-
-              <label>
-                Maximum (NTU)
-              </label>
+              <label>Maximum (NTU)</label>
 
               <input
                 type="number"
@@ -314,29 +338,47 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
           </div>
 
         </div>
 
-
-        {/* ================= TEMPERATURE ================= */}
+        {/* =====================================
+            TEMPERATURE
+        ===================================== */}
 
         <div className="setting-group">
 
-          <h2>
-            Temperature
-          </h2>
+          <div className="setting-card-header">
+
+            <div className="setting-title">
+
+              <div className="setting-icon">
+                <Thermometer size={23} />
+              </div>
+
+              <div>
+                <h2>Temperature</h2>
+
+                <p>
+                  Safe operating temperature range
+                </p>
+              </div>
+
+            </div>
+
+            <span className="range-badge">
+              {settings.temperatureMin} –{" "}
+              {settings.temperatureMax} °C
+            </span>
+
+          </div>
 
           <div className="setting-inputs">
 
             <div>
-
-              <label>
-                Minimum (°C)
-              </label>
+              <label>Minimum (°C)</label>
 
               <input
                 type="number"
@@ -346,15 +388,10 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
-
             <div>
-
-              <label>
-                Maximum (°C)
-              </label>
+              <label>Maximum (°C)</label>
 
               <input
                 type="number"
@@ -364,29 +401,47 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
           </div>
 
         </div>
 
-
-        {/* ================= WATER LEVEL ================= */}
+        {/* =====================================
+            WATER LEVEL
+        ===================================== */}
 
         <div className="setting-group">
 
-          <h2>
-            Water Level
-          </h2>
+          <div className="setting-card-header">
+
+            <div className="setting-title">
+
+              <div className="setting-icon">
+                <Droplets size={23} />
+              </div>
+
+              <div>
+                <h2>Water Level</h2>
+
+                <p>
+                  Recommended storage level range
+                </p>
+              </div>
+
+            </div>
+
+            <span className="range-badge">
+              {settings.waterLevelMin} –{" "}
+              {settings.waterLevelMax} %
+            </span>
+
+          </div>
 
           <div className="setting-inputs">
 
             <div>
-
-              <label>
-                Minimum (%)
-              </label>
+              <label>Minimum (%)</label>
 
               <input
                 type="number"
@@ -396,15 +451,10 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
-
             <div>
-
-              <label>
-                Maximum (%)
-              </label>
+              <label>Maximum (%)</label>
 
               <input
                 type="number"
@@ -414,29 +464,47 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
           </div>
 
         </div>
 
+        {/* =====================================
+            FLOW RATE
+        ===================================== */}
 
-        {/* ================= FLOW RATE ================= */}
+        <div className="setting-group flow-setting">
 
-        <div className="setting-group">
+          <div className="setting-card-header">
 
-          <h2>
-            Flow Rate
-          </h2>
+            <div className="setting-title">
+
+              <div className="setting-icon">
+                <Gauge size={23} />
+              </div>
+
+              <div>
+                <h2>Flow Rate</h2>
+
+                <p>
+                  Acceptable plant water flow range
+                </p>
+              </div>
+
+            </div>
+
+            <span className="range-badge">
+              {settings.flowRateMin} –{" "}
+              {settings.flowRateMax}
+            </span>
+
+          </div>
 
           <div className="setting-inputs">
 
             <div>
-
-              <label>
-                Minimum
-              </label>
+              <label>Minimum</label>
 
               <input
                 type="number"
@@ -446,15 +514,10 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
-
             <div>
-
-              <label>
-                Maximum
-              </label>
+              <label>Maximum</label>
 
               <input
                 type="number"
@@ -464,25 +527,31 @@ function Settings() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
           </div>
 
         </div>
 
+        {/* =====================================
+            SAVE BUTTON
+        ===================================== */}
 
-        {/* ================= SAVE BUTTON ================= */}
+        <div className="settings-actions">
 
-        <button
-          type="submit"
-          className="save-settings-btn"
-          disabled={saving}
-        >
-          {saving
-            ? "Saving..."
-            : "Save Threshold Settings"}
-        </button>
+          <button
+            type="submit"
+            className="save-settings-btn"
+            disabled={saving}
+          >
+            <Save size={17} />
+
+            {saving
+              ? "Saving..."
+              : "Save Threshold Settings"}
+          </button>
+
+        </div>
 
       </form>
 
