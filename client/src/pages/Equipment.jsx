@@ -2,196 +2,245 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../api";
 
 import {
-  CircleGauge,
-  Cylinder,
-  Filter,
-  Settings,
-  Droplets
+CircleGauge,
+Cylinder,
+Filter,
+Settings,
+Droplets
 } from "lucide-react";
 
 function Equipment() {
-  const [equipment, setEquipment] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const [equipment, setEquipment] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
+// ==========================================
+// FETCH EQUIPMENT
+// ==========================================
+
+const fetchEquipment = async () => {
+try {
+const response = await apiFetch("/api/equipment");
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch equipment");
+  }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("Invalid equipment data received");
+  }
+
+  setEquipment(data);
+  setError("");
+
+} catch (error) {
+  console.error("Error fetching equipment:", error);
+
+  setError("Unable to load equipment information.");
+
+} finally {
+  setLoading(false);
+}
+
+};
+
+// ==========================================
+// AUTO REFRESH EVERY 5 SECONDS
+// ==========================================
 
 useEffect(() => {
-  const fetchEquipment = async () => {
-    try {
-      const response = await apiFetch("/api/equipment");
+fetchEquipment();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch equipment");
-      }
 
-      const data = await response.json();
+const interval = setInterval(fetchEquipment, 5000);
 
-      setEquipment(data);
-      setError("");
-    } catch (error) {
-      console.error("Error fetching equipment:", error);
-      setError("Unable to load equipment information.");
-    } finally {
-      setLoading(false);
-    }
-  };
+return () => clearInterval(interval);
 
-  // Fetch immediately when page opens
-  fetchEquipment();
-
-  // Fetch latest equipment every 5 seconds
-  const interval = setInterval(() => {
-    fetchEquipment();
-  }, 5000);
-
-  // Stop interval when leaving Equipment page
-  return () => clearInterval(interval);
 
 }, []);
 
-  // Choose icon based on equipment type/name
-  const getEquipmentIcon = (item) => {
-    const name = item.name.toLowerCase();
-    const type = item.type.toLowerCase();
+// ==========================================
+// CHOOSE EQUIPMENT ICON
+// ==========================================
 
-    if (type === "pump" || name.includes("pump")) {
-      return <CircleGauge size={30} />;
-    }
+const getEquipmentIcon = (item) => {
+const name = (item.name || "").toLowerCase();
+const type = (item.type || "").toLowerCase();
 
-    if (type === "tank" || name.includes("tank")) {
-      return <Cylinder size={30} />;
-    }
 
-    if (type === "filter" || name.includes("filter")) {
-      return <Filter size={30} />;
-    }
+if (type === "pump" || name.includes("pump")) {
+  return <CircleGauge size={30} />;
+}
 
-    if (type === "valve" || name.includes("valve")) {
-      return <Settings size={30} />;
-    }
+if (type === "tank" || name.includes("tank")) {
+  return <Cylinder size={30} />;
+}
 
-    return <Droplets size={30} />;
-  };
+if (type === "filter" || name.includes("filter")) {
+  return <Filter size={30} />;
+}
 
-  if (loading) {
-    return <h2>Loading equipment...</h2>;
-  }
+if (type === "valve" || name.includes("valve")) {
+  return <Settings size={30} />;
+}
 
-  return (
-    <div className="equipment-page">
+return <Droplets size={30} />;
 
-      <div className="page-header">
-        <h1>Equipment Monitoring</h1>
-        <p>
-          Monitor water treatment plant equipment status
-        </p>
-      </div>
 
-      {error && (
-        <div className="settings-message">
-          {error}
-        </div>
-      )}
+};
 
-      <div className="equipment-summary">
+// ==========================================
+// LOADING
+// ==========================================
 
-        <div className="equipment-summary-card">
-          <h3>Total Equipment</h3>
-          <strong>{equipment.length}</strong>
-        </div>
+if (loading) {
+return <h2>Loading equipment...</h2>;
+}
 
-        <div className="equipment-summary-card">
-          <h3>Normal Equipment</h3>
+// ==========================================
+// ERROR
+// ==========================================
 
-          <strong className="equipment-normal-count">
-            {
-              equipment.filter(
-                (item) => item.condition === "Normal"
-              ).length
-            }
-          </strong>
-        </div>
+if (error && equipment.length === 0) {
+return ( <div className="equipment-page"> <h2>Unable to load equipment</h2>
 
-      </div>
+    <p>{error}</p>
 
-      {equipment.length === 0 ? (
+    <button onClick={fetchEquipment}>
+      Try Again
+    </button>
+  </div>
+);
 
-        <div className="no-equipment">
-          No equipment information available.
-        </div>
 
-      ) : (
+}
 
-        <div className="equipment-grid">
+return ( <div className="equipment-page">
 
-          {equipment.map((item) => (
+  {/* HEADER */}
 
-            <div
-              className="equipment-card"
-              key={item._id}
-            >
+  <div className="page-header">
+    <h1>Equipment Monitoring</h1>
 
-              <div className="equipment-card-header">
+    <p>
+      Monitor water treatment plant equipment status
+    </p>
+  </div>
 
-                <div className="equipment-title-section">
+  {/* ERROR MESSAGE */}
 
-                  <div className="equipment-icon">
-                    {getEquipmentIcon(item)}
-                  </div>
+  {error && (
+    <div className="settings-message">
+      {error}
+    </div>
+  )}
 
-                  <h2>{item.name}</h2>
+  {/* EQUIPMENT SUMMARY */}
 
-                </div>
+  <div className="equipment-summary">
 
-                <span
-                  className={
-                    item.condition === "Normal"
-                      ? "equipment-normal"
-                      : "equipment-warning"
-                  }
-                >
-                  {item.condition}
-                </span>
+    <div className="equipment-summary-card">
+      <h3>Total Equipment</h3>
+      <strong>{equipment.length}</strong>
+    </div>
 
+    <div className="equipment-summary-card">
+      <h3>Normal Equipment</h3>
+
+      <strong className="equipment-normal-count">
+        {
+          equipment.filter(
+            (item) => item.condition === "Normal"
+          ).length
+        }
+      </strong>
+    </div>
+
+  </div>
+
+  {/* EQUIPMENT LIST */}
+
+  {equipment.length === 0 ? (
+
+    <div className="no-equipment">
+      No equipment information available.
+    </div>
+
+  ) : (
+
+    <div className="equipment-grid">
+
+      {equipment.map((item) => (
+
+        <div
+          className="equipment-card"
+          key={item._id}
+        >
+
+          <div className="equipment-card-header">
+
+            <div className="equipment-title-section">
+
+              <div className="equipment-icon">
+                {getEquipmentIcon(item)}
               </div>
 
-              <div className="equipment-details">
-
-                <p>
-                  <strong>Type:</strong>{" "}
-                  {item.type}
-                </p>
-
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {item.status}
-                </p>
-
-                <p>
-                  <strong>Condition:</strong>{" "}
-                  {item.condition}
-                </p>
-
-                <p>
-                  <strong>Last Updated:</strong>{" "}
-                  {item.updatedAt
-                    ? new Date(
-                        item.updatedAt
-                      ).toLocaleString()
-                    : "Not available"}
-                </p>
-
-              </div>
+              <h2>{item.name}</h2>
 
             </div>
 
-          ))}
+            <span
+              className={
+                item.condition === "Normal"
+                  ? "equipment-normal"
+                  : "equipment-warning"
+              }
+            >
+              {item.condition}
+            </span>
+
+          </div>
+
+          <div className="equipment-details">
+
+            <p>
+              <strong>Type:</strong>{" "}
+              {item.type}
+            </p>
+
+            <p>
+              <strong>Status:</strong>{" "}
+              {item.status}
+            </p>
+
+            <p>
+              <strong>Condition:</strong>{" "}
+              {item.condition}
+            </p>
+
+            <p>
+              <strong>Last Updated:</strong>{" "}
+              {item.updatedAt
+                ? new Date(item.updatedAt).toLocaleString()
+                : "Not available"}
+            </p>
+
+          </div>
 
         </div>
 
-      )}
+      ))}
 
     </div>
-  );
+
+  )}
+
+</div>
+
+
+);
 }
 
 export default Equipment;
