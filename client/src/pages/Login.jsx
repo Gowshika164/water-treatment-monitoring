@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,16 +14,16 @@ function Login({ onLogin }) {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/auth/login`,
+        "http://localhost:5000/api/auth/login",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             email,
-            password,
-          }),
+            password
+          })
         }
       );
 
@@ -36,6 +34,7 @@ function Login({ onLogin }) {
         return;
       }
 
+      // Store login information
       localStorage.setItem("token", data.token);
       localStorage.setItem(
         "user",
@@ -43,9 +42,14 @@ function Login({ onLogin }) {
       );
 
       onLogin(data.user);
+
     } catch (error) {
       console.error("Login error:", error);
-      setError("Unable to connect to the server");
+
+      setError(
+        "Unable to connect to the server"
+      );
+
     } finally {
       setLoading(false);
     }
@@ -53,9 +57,13 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-page">
+
       <div className="login-card">
+
         <div className="login-brand">
-          <div className="login-icon">💧</div>
+          <div className="login-icon">
+            💧
+          </div>
 
           <h1>Water Monitor</h1>
 
@@ -68,6 +76,7 @@ function Login({ onLogin }) {
           className="login-form"
           onSubmit={handleSubmit}
         >
+
           <div className="login-heading">
             <h2>Welcome Back</h2>
             <p>
@@ -82,12 +91,9 @@ function Login({ onLogin }) {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">
-              Email Address
-            </label>
+            <label>Email Address</label>
 
             <input
-              id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
@@ -99,12 +105,9 @@ function Login({ onLogin }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">
-              Password
-            </label>
+            <label>Password</label>
 
             <input
-              id="password"
               type="password"
               placeholder="Enter your password"
               value={password}
@@ -120,14 +123,19 @@ function Login({ onLogin }) {
             className="login-button"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading
+              ? "Signing in..."
+              : "Sign In"}
           </button>
+
         </form>
 
         <p className="login-footer">
           Real-Time Water Treatment Plant Monitoring
         </p>
+
       </div>
+
     </div>
   );
 }

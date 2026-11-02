@@ -24,6 +24,11 @@ const app = express();
 // MIDDLEWARE
 // =====================================================
 
+// MIDDLEWARE
+
+// MIDDLEWARE
+// MIDDLEWARE
+
 app.use(cors());
 app.use(express.json());
 
